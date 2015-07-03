@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = musikloud2
+TARGET = harbour-musikloud2#musikloud2
 
 #DEFINES += MUSIKLOUD_DEBUG
 
@@ -324,7 +324,7 @@ maemo5 {
         contentaction \
         splash
     
-} else:unix {
+} else:unix:!exists("/usr/include/sailfishapp/sailfishapp.h"): {
     QT += qml quick widgets
     
     LIBS += -L/usr/lib -lqsoundcloud
@@ -377,7 +377,53 @@ maemo5 {
         icon16
 }
 
-unix:!symbian {
+exists("/usr/include/sailfishapp/sailfishapp.h"): {
+    QT += qml quick
+
+    #QSoundCloud data
+    LIBS += -L../../qsoundcloud/lib -lqsoundcloud
+    INCLUDEPATH +=../../qsoundcloud/include
+
+    DEPENDPATH += ../../qsoundcloud/src
+    PRE_TARGETDEPS += ../../qsoundcloud/lib/libqsoundcloud.a
+
+    CONFIG += link_pkgconfig
+    PKGCONFIG += sailfishapp
+    INCLUDEPATH += /usr/include/sailfishapp
+
+    desktop.files = desktop/sailfish/harbour-musikloud2.desktop
+    desktop.path = /usr/share/applications/
+
+    icon.files = desktop/sailfish/harbour-musikloud2.png
+    icon.path = /usr/share/icons/hicolor/86x86/apps/
+
+    target.path = /usr/bin
+
+    qml.files = src/sailfish-qml/qml/*
+    qml.path = /usr/share/harbour-musikloud2/qml
+    INSTALLS += desktop icon qml
+
+    INCLUDEPATH += src/sailfish-qml
+    HEADERS += \
+        src/sailfish-qml/definitions.h \
+        src/base/transfermodel.h \
+        src/base/transferprioritymodel.h
+
+    SOURCES += \
+        src/base/transfermodel.cpp \
+        src/sailfish-qml/main.cpp
+
+    # TODO fix clipboard
+    HEADERS -= src/base/clipboard.h
+    SOURCES -= src/base/clipboard.cpp
+
+    OTHER_FILES += \
+        ../rpm/harbour-musikloud2.spec \
+        src/sailfish-qml/qml/*.qml \
+        src/sailfish-qml/qml/soundcloud/*.qml
+}
+
+unix:!symbian:!exists("/usr/include/sailfishapp/sailfishapp.h"): {
     QT += dbus
     
     INCLUDEPATH += src/dbus
