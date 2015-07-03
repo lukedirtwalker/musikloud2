@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Name=Musikloud2
+Icon=harbour-musikloud2
+Exec=harbour-musikloud2
+
+X-Desktop-File-Install-Version=0.20
