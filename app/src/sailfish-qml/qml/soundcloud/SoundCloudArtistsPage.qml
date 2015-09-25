@@ -25,46 +25,17 @@ Page {
 
     allowedOrientations: Orientation.All
 
-    property alias model: artistModel
+    property alias model: artistsView.model
     property string title: qsTr("Users")
 
-    SilicaGridView {
-        id: artistGrid
+    SoundCloudArtistsView {
+        id: artistsView
         anchors.fill: parent
 
-        property int columns: Math.floor(width / (1.5 * Theme.itemSizeHuge))
-
-        cellWidth: Math.floor(width / columns)
-        cellHeight: cellWidth
+        placeholderText: qsTr("No users found")
 
         header: PageHeader {
             title: root.title
         }
-
-        model: SoundCloudArtistModel {
-            id: artistModel
-
-            // TODO:            onStatusChanged: if (status == QSoundCloud.ResourcesRequest.Failed) messageBox.showError(errorString);
-        }
-
-        delegate: ArtistDelegate {
-            width: GridView.view.cellWidth
-            onClicked: {
-                pageStack.push(Qt.resolvedUrl("SoundCloudArtistPage.qml")).loadArtist(artistModel.get(index))
-            }
-        }
-
-        VerticalScrollDecorator {}
-
-        ViewPlaceholder {
-            enabled: artistModel.status === QSoundCloud.ResourcesRequest.Ready && model.count == 0
-            text: qsTr("No users found")
-        }
-    }
-
-    BusyIndicator {
-        anchors.centerIn: parent
-        running: artistModel.status === QSoundCloud.ResourcesRequest.Loading
-        size: BusyIndicatorSize.Large
     }
 }

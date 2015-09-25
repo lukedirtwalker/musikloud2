@@ -25,36 +25,16 @@ Page {
 
     allowedOrientations: Orientation.All
 
-    property alias model: trackModel
+    property alias model: tracksView.model
     property string title: qsTr("Tracks")
 
-    SilicaListView {
+    SoundCloudTracksView {
+        id: tracksView
         anchors.fill: parent
 
-
+        placeholderText: qsTr("No tracks found")
         header: PageHeader {
             title: root.title
         }
-
-        model: SoundCloudTrackModel {
-            id: trackModel
-
-            // TODO:            onStatusChanged: if (status == QSoundCloud.ResourcesRequest.Failed) messageBox.showError(errorString);
-        }
-
-        delegate: TrackDelegate { }
-
-        VerticalScrollDecorator {}
-
-        ViewPlaceholder {
-            enabled: trackModel.status === QSoundCloud.ResourcesRequest.Ready && model.count == 0
-            text: qsTr("No tracks found")
-        }
-    }
-
-    BusyIndicator {
-        anchors.centerIn: parent
-        running: trackModel.status === QSoundCloud.ResourcesRequest.Loading
-        size: BusyIndicatorSize.Large
     }
 }
