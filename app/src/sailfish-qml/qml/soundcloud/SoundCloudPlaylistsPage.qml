@@ -9,37 +9,17 @@ Page {
 
     allowedOrientations: Orientation.All
 
-    property alias model: playlistModel
+    property alias model: playlistsView.model
     property string title: qsTr("Sets")
 
-    SilicaListView {
+    SoundCloudPlaylistsView {
+        id: playlistsView
         anchors.fill: parent
 
-
+        placeholderText: qsTr("No sets found")
         header: PageHeader {
             title: root.title
         }
-
-        model: SoundCloudPlaylistModel {
-            id: playlistModel
-
-            // TODO:            onStatusChanged: if (status == QSoundCloud.ResourcesRequest.Failed) messageBox.showError(errorString);
-        }
-
-        delegate: PlaylistDelegate { }
-
-        VerticalScrollDecorator {}
-
-        ViewPlaceholder {
-            enabled: playlistModel.status === QSoundCloud.ResourcesRequest.Ready && model.count == 0
-            text: qsTr("No sets found")
-        }
-    }
-
-    BusyIndicator {
-        anchors.centerIn: parent
-        running: playlistModel.status === QSoundCloud.ResourcesRequest.Loading
-        size: BusyIndicatorSize.Large
     }
 }
 
