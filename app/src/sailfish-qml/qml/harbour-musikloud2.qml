@@ -6,6 +6,7 @@ import "soundcloud"
 
 ApplicationWindow
 {
+    id: app
     initialPage: Component { SoundCloudPage{} }
 
     bottomMargin: miniControls.visibleSize
@@ -20,7 +21,6 @@ ApplicationWindow
         id: miniControls
         open: player.queueCount > 0
     }
-
     Notification {
         id: infoBanner
         category: "harbour.musikloud2.info"
@@ -34,5 +34,13 @@ ApplicationWindow
         function showMessage(message) {
             showError(message);
         }
+    }
+
+    function showSoundCloudTrackPage(args) {
+        pageStack.push(Qt.resolvedUrl("soundcloud/SoundCloudTrackPage.qml"), args);
+    }
+
+    function isSoundCloudTrackPageVisible() {
+        return pageStack.currentPage.objectName == 'soundCloudTrackPage'
     }
 }

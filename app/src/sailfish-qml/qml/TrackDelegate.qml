@@ -6,7 +6,9 @@ BackgroundItem {
     height: Theme.itemSizeMedium
 
     onClicked: {
-        player.playTrack(ListView.view.model.get(index))
+        var track = ListView.view.model.get(index)
+        player.playTrack(track)
+        app.showSoundCloudTrackPage({"model": track})
     }
 
     Image {
