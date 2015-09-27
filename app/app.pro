@@ -466,4 +466,3 @@ contains(DEFINES,FETCH_LOCAL_METADATA) {
 }
 
 INSTALLS += target
-
