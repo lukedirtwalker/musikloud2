@@ -14,8 +14,8 @@ SilicaListView {
     model: SoundCloudTrackModel {
         id: tracksModel
 
-        onStatusChanged: if (status === QSoundCloud.ResourcesRequest.Failed) console.log(errorString)
-                    //infoBanner.showMessage(errorString);
+        onStatusChanged: if (status === QSoundCloud.ResourcesRequest.Failed)
+                             infoBanner.showError(errorString);
     }
 
     delegate: TrackDelegate {}

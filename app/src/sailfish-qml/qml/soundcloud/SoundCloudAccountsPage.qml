@@ -27,6 +27,7 @@ Page {
             }
             delegate: ListItem {
                 id: accountItem
+                menu: contextMenu
                 Label {
                     anchors {
                         left: parent.left
@@ -40,14 +41,25 @@ Page {
                 }
 
                 highlighted: active
-                onClicked: accountModel.selectAccount(index)
-//                infoBanner.showMessage(accountModel.selectAccount(index)
-//                                                  ? qsTr("You have selected account") + " '" + username + "'"
-//                                                  : accountModel.errorString)
-//                onPressAndHold: {
-//                    view.currentIndex = index;
-//                    contextMenu.open();
-//                }
+                onClicked: infoBanner.showMessage(accountModel.selectAccount(index)
+                                                  ? qsTr("You have selected account") + " '" + username + "'"
+                                                  : accountModel.errorString)
+
+                function remove() {
+                    remorseAction("Removing account", function() {infoBanner.showMessage(accountModel.removeAccount(view.currentIndex)
+                                                                                         ? qsTr("Account removed. Please visit the SoundCloud website to revoke the access token")
+                                                                                         : accountModel.errorString)})
+                }
+
+                Component {
+                    id: contextMenu
+                    ContextMenu {
+                        MenuItem {
+                            text: qsTr("Remove")
+                            onClicked: remove()
+                        }
+                    }
+                }
             }
 
             ViewPlaceholder {
@@ -57,17 +69,6 @@ Page {
 
             VerticalScrollDecorator {}
         }
-
-//        ContextMenu {
-//            id: contextMenu
-
-//            MenuItem {
-//                text: qsTr("Remove")
-//                onClicked: infoBanner.showMessage(accountModel.removeAccount(view.currentIndex)
-//                                                  ? qsTr("Account removed. Please visit the SoundCloud website to revoke the access token")
-//                                                  : accountModel.errorString)
-//            }
-//        }
     }
 
 
@@ -103,7 +104,7 @@ Page {
         redirectUri: SoundCloud.redirectUri
         scopes: SoundCloud.scopes
         onFinished: {
-            if (status == QSoundCloud.AuthenticationRequest.Ready) {
+            if (status === QSoundCloud.AuthenticationRequest.Ready) {
                 if (result.access_token) {
                     userRequest.accessToken = result.access_token;
                     userRequest.refreshToken = (result.refresh_token ? result.refresh_token : "");
@@ -111,9 +112,7 @@ Page {
                     return;
                 }
             }
-
-            // TODO messageBox.showError
-            console.error(SoundCloud.getErrorString(result));
+            infoBanner.showError(SoundCloud.getErrorString(result));
         }
     }
 
@@ -123,21 +122,18 @@ Page {
         clientId: SoundCloud.clientId
         clientSecret: SoundCloud.clientSecret
         onFinished: {
-            if (status == QSoundCloud.ResourcesRequest.Ready) {
+            if (status === QSoundCloud.ResourcesRequest.Ready) {
                 if (accountModel.addAccount(result.id, result.username, accessToken, refreshToken,
                                             SoundCloud.scopes.join(" "))) {
-                    // TODO statusBar.showMessage
-                    console.log(qsTr("You are signed in to account") + " '" + result.username + "'");
+                    infoBanner.showMessage(qsTr("You are signed in to account") + " '" + result.username + "'");
                 }
                 else {
-                    // TODO messageBox.showError
-                    console.error(accountModel.errorString);
+                    infoBanner.showError(accountModel.errorString);
                 }
 
                 return;
             }
-            // TODO messageBox.showError
-            console.error(SoundCloud.getErrorString(result));
+            infoBanner.showError(SoundCloud.getErrorString(result));
         }
     }
 }

@@ -33,7 +33,7 @@ Page {
                 break;
             case QSoundCloud.ResourcesRequest.Failed:
                 console.log("Artist fetch failed")
-                //                TODO messageBox.showError(errorString);
+                infoBanner.showError(errorString);
                 break;
             default:
                 console.log("Other status: " + status)
