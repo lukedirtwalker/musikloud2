@@ -401,7 +401,11 @@ exists("/usr/include/sailfishapp/sailfishapp.h"): {
 
     qml.files = src/sailfish-qml/qml/*
     qml.path = /usr/share/harbour-musikloud2/qml
-    INSTALLS += desktop icon qml
+
+    notification.files = ../sailfish/harbour.musikloud2.info.conf
+    notification.path = /usr/share/lipstick/notificationcategories
+
+    INSTALLS += desktop icon qml notification
 
     INCLUDEPATH += src/sailfish-qml
     HEADERS += \
@@ -420,7 +424,8 @@ exists("/usr/include/sailfishapp/sailfishapp.h"): {
     OTHER_FILES += \
         ../rpm/harbour-musikloud2.spec \
         src/sailfish-qml/qml/*.qml \
-        src/sailfish-qml/qml/soundcloud/*.qml
+        src/sailfish-qml/qml/soundcloud/*.qml \
+        ../sailfish/harbour.musikloud2.info.conf
 }
 
 unix:!symbian:!exists("/usr/include/sailfishapp/sailfishapp.h"): {

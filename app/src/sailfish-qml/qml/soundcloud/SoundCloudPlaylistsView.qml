@@ -12,8 +12,8 @@ SilicaListView {
     property alias placeholderText: placeholder.text
 
     model: SoundCloudPlaylistModel {
-        onStatusChanged: if (status === QSoundCloud.ResourcesRequest.Failed) console.log(errorString)
-                    //infoBanner.showMessage(errorString);
+        onStatusChanged: if (status === QSoundCloud.ResourcesRequest.Failed)
+                             infoBanner.showError(errorString);
     }
 
     delegate: PlaylistDelegate {}

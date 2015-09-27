@@ -18,7 +18,8 @@ SilicaGridView {
     model: SoundCloudArtistModel {
         id: artistModel
 
-        // TODO:            onStatusChanged: if (status == QSoundCloud.ResourcesRequest.Failed) messageBox.showError(errorString);
+        onStatusChanged: if (status === QSoundCloud.ResourcesRequest.Failed)
+                             infoBanner.showError(errorString);
     }
 
     delegate: ArtistDelegate {
