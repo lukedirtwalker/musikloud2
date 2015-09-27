@@ -107,7 +107,9 @@ DockedPanel {
                         width: controls.itemWidth
                         anchors.verticalCenter: parent.verticalCenter
                         icon.source: "image://theme/icon-m-next"
-                        onClicked: player.next()
+                        onClicked: {
+                            player.next()
+                        }
                     }
                 }
             }

@@ -6,8 +6,11 @@ BackgroundItem {
     height: Theme.itemSizeMedium
 
     onClicked: {
+        // TODO: BEAN - Plugin Tracks currently not supported
+        player.setTracksToPlay(ListView.view.model)
+        player.setCurrentIndex(index)
+
         var track = ListView.view.model.get(index)
-        player.playTrack(track)
         app.showSoundCloudTrackPage({"model": track})
     }
 
