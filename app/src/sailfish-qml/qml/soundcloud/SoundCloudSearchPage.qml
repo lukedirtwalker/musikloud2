@@ -14,63 +14,96 @@ Page {
         filters["q"] = query;
         filters["limit"] = MAX_RESULTS;
 
-        if (type == Resources.PLAYLIST) {
-            url = Qt.resolvedUrl("SoundCloudPlaylistsPage.qml");
+        if (type === Resources.PLAYLIST) {
             path = "/playlists";
+            contentLoader.sourceComponent = setsView
         }
-        else if (type == Resources.ARTIST) {
-            url = Qt.resolvedUrl("SoundCloudArtistsPage.qml");
+        else if (type === Resources.ARTIST) {
             path = "/users";
+            contentLoader.sourceComponent = usersView
         }
         else {
-            url = Qt.resolvedUrl("SoundCloudTracksPage.qml");
             path = "/tracks";
+            contentLoader.sourceComponent = tracksView
         }
-        pageStack.push(url, {"title": qsTr("Search") + " ('" + query + "')"})
-                       .model.get(path, filters);
+        contentLoader.item.model.get(path, filters);
         return true;
     }
 
-    Column {
-        width: parent.width
-        PageHeader {
-            title: qsTr("Search")
+    Loader {
+        id: contentLoader
+        anchors.fill: parent
+        sourceComponent: setsView
+    }
+
+    Component {
+        id: tracksView
+        SoundCloudTracksView {
+            id: view
+            header: searchHeader
         }
+    }
 
-        SearchField {
-            id: searchField
-
-            width: parent.width
-            placeholderText: qsTr("Search")
-            validator: RegExpValidator {
-                regExp: /^.+/
-            }
-            EnterKey.onClicked: {
-                root.search(text, searchTypeModel.data(searchTypeSelector.currentIndex, "value").type,
-                            searchTypeModel.data(searchTypeSelector.currentIndex, "value").order);
-                text = "";
-            }
+    Component {
+        id: setsView
+        SoundCloudPlaylistsView {
+            id: view
+            header: searchHeader
         }
+    }
 
-        ComboBox {
-            id: searchTypeSelector
+    Component {
+        id: usersView
+        SoundCloudArtistsView {
+            id: view
+            header: searchHeader
+        }
+    }
+
+    Component {
+        id: searchHeader
+
+        Column {
             width: parent.width
+            PageHeader {
+                title: qsTr("Search") + searchField.text === "" ? "" : " ('" + searchField.text + "')"
+            }
 
-            label: qsTr("Search category")
+            SearchField {
+                id: searchField
 
-            menu: ContextMenu {
-                Repeater {
-                    width: parent.width
-                    model: SoundCloudSearchTypeModel {
-                        id: searchTypeModel
-                    }
-                    delegate: MenuItem {
-                        text: model.name
-                        onClicked: Settings.setDefaultSearchType(Resources.SOUNDCLOUD, searchTypeModel.data(index, "name"))
-                    }
+                width: parent.width
+                placeholderText: qsTr("Search")
+                validator: RegExpValidator {
+                    regExp: /^.+/
+                }
+                EnterKey.onClicked: {
+                    root.search(text, searchTypeModel.data(searchTypeSelector.currentIndex, "value").type,
+                                searchTypeModel.data(searchTypeSelector.currentIndex, "value").order);
+                    text = "";
                 }
             }
-            currentIndex: searchTypeModel.match("name", Settings.defaultSearchType(Resources.SOUNDCLOUD))
+
+            ComboBox {
+                id: searchTypeSelector
+                width: parent.width
+
+                label: qsTr("Search category")
+
+                menu: ContextMenu {
+                    Repeater {
+                        width: parent.width
+                        model: SoundCloudSearchTypeModel {
+                            id: searchTypeModel
+                        }
+                        delegate: MenuItem {
+                            text: model.name
+                            onClicked: Settings.setDefaultSearchType(Resources.SOUNDCLOUD, searchTypeModel.data(index, "name"))
+                        }
+                    }
+                }
+                currentIndex: searchTypeModel.match("name", Settings.defaultSearchType(Resources.SOUNDCLOUD))
+            }
         }
     }
 }
