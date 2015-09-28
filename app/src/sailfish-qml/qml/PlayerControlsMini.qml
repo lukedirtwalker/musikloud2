@@ -43,6 +43,14 @@ DockedPanel {
                 width: controlsFlickable.height
                 height: width
                 source: player.currentTrack ? player.currentTrack.thumbnailUrl : ""
+            MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        if (!app.isSoundCloudTrackPageVisible() && player.currentTrack) {
+                           app.showSoundCloudTrackPage({"model": player.currentTrack})
+                        }
+                    }
+                }
             }
 
             Column {
