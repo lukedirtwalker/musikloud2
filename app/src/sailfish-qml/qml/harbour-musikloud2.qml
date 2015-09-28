@@ -59,6 +59,7 @@ ApplicationWindow
         id: miniControls
         open: player.queueCount > 0
     }
+
     Notification {
         id: infoBanner
         category: "harbour.musikloud2.info"

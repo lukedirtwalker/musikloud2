@@ -2,6 +2,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import harbour.musikloud2.MusiKloud 2.0
 
+import QtGraphicalEffects 1.0
 
 SilicaFlickable {
     id: page
@@ -9,37 +10,13 @@ SilicaFlickable {
 
     property Track model
 
-    property SoundCloudTrack soundCloudModel
-
-    onModelChanged: {
-        try {
-            // If the current track is requested through the player instance, a Track instance which has
-            // Track.service == Resources.SOUNDCLOUD but is not a subclass of SoundCloudTrack is returned
-            // Thus SoundCloudTrack attributes are not available
-            soundCloudModel = model
-        } catch (e) {
-            console.log("Model has service = SOUNDClOUD but not appropriate subclass for Soundcloud attributes. " +
-                        "Ignoring soundcloud attributes")
-        }
-    }
-
-    function isSoundcloudModel() {
-        return soundCloudModel !== 'undefined' && soundCloudModel != null
-    }
-
     PullDownMenu {
         MenuItem {
-            text: qsTr("Like")
-            visible: isSoundcloudModel() && !soundCloudModel.favourited
+            text: visible && !model.favourited ? qsTr("Like") : qsTr("Unlike")
+            visible: model.favourited !== undefined
             onClicked: {
-                soundCloudModel.favourite()
-            }
-        }
-        MenuItem {
-            text: qsTr("Unlike")
-            visible: isSoundcloudModel() && soundCloudModel.favourited
-            onClicked: {
-                soundCloudModel.unfavourite()
+                if (model.favourited) model.unfavourite()
+                else model.favourite()
             }
         }
         MenuItem {
@@ -50,32 +27,49 @@ SilicaFlickable {
         }
     }
 
-    BackgroundItem {
 
-        Flickable {
-            id: bgFlick
-            width: page.width
-            height: page.height
-            contentWidth: image.width
-            contentHeight: image.height
-            interactive: false
-            boundsBehavior: Flickable.StopAtBounds
+    Flickable {
+        id: bgFlick
+        width: page.width
+        height: page.height
+        contentWidth: image.width
+        contentHeight: image.height
+        interactive: false
+        boundsBehavior: Flickable.StopAtBounds
+        clip: true
 
-            Connections {
-                target: trackSlider
-                onValueChanged: {
-                    // in case of background image is smaller than page width, image is showing without scroll
-                    var maxImgWidth = image.width > page.width ? image.width : page.width
-                    bgFlick.contentX = (maxImgWidth - page.width) / (model.duration / 1000 ) * trackSlider.value
+        Connections {
+            target: trackSlider
+            onValueChanged: {
+                // in case of background image is smaller than page width, image is showing without scroll
+                var maxImgWidth = image.width > page.width ? image.width : page.width
+                bgFlick.contentX = (maxImgWidth - page.width) / (model.duration / 1000 ) * trackSlider.value
+            }
+        }
+
+        Image {
+            id: image
+            property int _scaling: Math.ceil(page.height > page.width ? page.height / sourceSize.height : page.width / sourceSize.width)
+            height: sourceSize.height * _scaling
+            width: sourceSize.width * _scaling
+            source: model.largeThumbnailUrl
+            smooth: true
+            visible: false
+            onStatusChanged: {
+                // Workaround to refresh the blur
+                // FIXME remove once it works without
+                if (status === Image.Ready) {
+                    blur.source = null
+                    blur.source = image
                 }
             }
+        }
 
-            Image {
-                id: image
-                height: page.height
-                width: sourceSize.width * height / sourceSize.height
-                source: model.largeThumbnailUrl
-            }
+        FastBlur {
+            id: blur
+            anchors.fill: image
+            source: image
+            radius: 50
         }
     }
 
@@ -139,14 +133,13 @@ SilicaFlickable {
             width: likes.width  + Theme.paddingLarge
             height: likes.height
             color: "black"
-            visible: isSoundcloudModel()
+            visible: model.favouriteCount !== undefined
 
             Label {
                 anchors.centerIn: parent
                 id: likes
-                visible: isSoundcloudModel()
                 font.pixelSize: Theme.fontSizeSmall
-                text: "<3: " + soundCloudModel.favouriteCount
+                text: parent.visible ? "<3: " + model.favouriteCount : ""
                 truncationMode: TruncationMode.Fade
             }
         }
@@ -168,8 +161,8 @@ SilicaFlickable {
         color: "black"
 
         Slider {
-            anchors.centerIn: parent
             id: trackSlider
+            anchors.centerIn: parent
             minimumValue: 0
             stepSize: 1
             maximumValue: model.duration / 1000
@@ -186,7 +179,8 @@ SilicaFlickable {
             Connections {
                 target: player
                 onPositionChanged: {
-                    trackSlider.value = player.position / 1000
+                    if (!trackSlider.pressed)
+                        trackSlider.value = player.position / 1000
                 }
             }
         }

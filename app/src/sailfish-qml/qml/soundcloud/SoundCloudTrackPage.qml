@@ -8,6 +8,8 @@ Page {
 
     property alias model: view.model
 
+    allowedOrientations: Orientation.All
+
     // make things easy and bind model to currently played track so controllers don't need to set model explicitly
     Connections {
         target: player
