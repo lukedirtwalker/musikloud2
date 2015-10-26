@@ -12,11 +12,14 @@ SilicaListView {
     property alias placeholderText: placeholder.text
 
     model: SoundCloudPlaylistModel {
+        id: playlistModel
         onStatusChanged: if (status === QSoundCloud.ResourcesRequest.Failed)
                              infoBanner.showError(errorString);
     }
 
-    delegate: PlaylistDelegate {}
+    delegate: PlaylistDelegate {
+        onClicked: pageStack.push(Qt.resolvedUrl("SoundCloudPlaylistPage.qml")).load(playlistModel.get(index))
+    }
 
     onResourceIdChanged: {
         console.log("resourceIdChanged to" + resourceId)
