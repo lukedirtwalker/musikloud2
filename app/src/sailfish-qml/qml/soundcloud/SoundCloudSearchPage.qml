@@ -7,6 +7,8 @@ Page {
 
     allowedOrientations: Orientation.All
 
+    property string _currentSearch: ""
+
     function search(query, type, order) {
         var url;
         var path;
@@ -33,7 +35,7 @@ Page {
     Loader {
         id: contentLoader
         anchors.fill: parent
-        sourceComponent: setsView
+        sourceComponent: historyList
     }
 
     Component {
@@ -64,23 +66,38 @@ Page {
         id: searchHeader
 
         Column {
-            width: parent.width
+            width: parent ? parent.width : 0
+
+            property alias searchField: searchField
             PageHeader {
-                title: qsTr("Search") + searchField.text === "" ? "" : " ('" + searchField.text + "')"
+                title: qsTr("Search") + (searchField.text === "" ? "" : " ('" + searchField.text + "')")
             }
 
             SearchField {
                 id: searchField
 
                 width: parent.width
+                focus: true
                 placeholderText: qsTr("Search")
                 validator: RegExpValidator {
                     regExp: /^.+/
                 }
-                EnterKey.onClicked: {
-                    root.search(text, searchTypeModel.data(searchTypeSelector.currentIndex, "value").type,
-                                searchTypeModel.data(searchTypeSelector.currentIndex, "value").order);
-                    text = "";
+                EnterKey.onClicked: search()
+                EnterKey.enabled: searchField.acceptableInput
+                EnterKey.iconSource: "image://theme/icon-m-search"
+                onTextChanged: {
+                    root._currentSearch = text
+                    if (text == "") contentLoader.sourceComponent = historyList
+                }
+                Component.onCompleted: text = root._currentSearch
+
+                function search() {
+                    if (searchField.acceptableInput)
+                    {
+                        root.search(text, searchTypeModel.data(searchTypeSelector.currentIndex, "value").type,
+                                    searchTypeModel.data(searchTypeSelector.currentIndex, "value").order)
+                        Settings.addSearch(text)
+                    }
                 }
             }
 
@@ -98,11 +115,78 @@ Page {
                         }
                         delegate: MenuItem {
                             text: model.name
-                            onClicked: Settings.setDefaultSearchType(Resources.SOUNDCLOUD, searchTypeModel.data(index, "name"))
+                            onClicked: {
+                                Settings.setDefaultSearchType(Resources.SOUNDCLOUD, searchTypeModel.data(index, "name"))
+                            }
                         }
+                    }
+
+                    onClosed: {
+                        searchField.search()
                     }
                 }
                 currentIndex: searchTypeModel.match("name", Settings.defaultSearchType(Resources.SOUNDCLOUD))
+            }
+        }
+    }
+
+    Component {
+        id: historyList
+        SilicaListView {
+            id: view
+
+            anchors.fill: parent
+            model: SearchHistoryModel {
+                id: searchModel
+            }
+            header: searchHeader
+
+            delegate: ListItem {
+                id: listItem
+
+                menu: contextMenu
+                contentHeight: Theme.itemSizeSmall
+                ListView.onRemove: animateRemoval(listItem)
+
+                onClicked: {
+                    var searchField = contentLoader.item.headerItem.searchField
+                    searchField.text = display
+                    searchField.search()
+                }
+
+                Label {
+                    text: display
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: Theme.horizontalPageMargin
+                    anchors.right: parent.right
+                    anchors.rightMargin: Theme.horizontalPageMargin
+                    truncationMode: TruncationMode.Fade
+                    color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
+                }
+
+                Component {
+                    id: contextMenu
+                    ContextMenu {
+                        MenuItem {
+                            text: qsTr("Remove")
+                            onClicked: searchModel.removeSearch(view.currentIndex)
+                        }
+
+                        MenuItem {
+                            text: qsTr("Clear")
+                            onClicked: searchModel.clear()
+                        }
+                    }
+                }
+            }
+
+            VerticalScrollDecorator { }
+
+            ViewPlaceholder {
+                enabled: view.count == 0
+                text: qsTr("Search history is empty")
+                hintText: qsTr("Search for something")
             }
         }
     }
