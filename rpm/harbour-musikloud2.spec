@@ -67,6 +67,7 @@ desktop-file-install --delete-original       \
 %{_datadir}/%{name}
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/86x86/apps/%{name}.png
+%{_datadir}/icons/hicolor/128x128/apps/%{name}.png
 %{_datadir}/lipstick/notificationcategories/harbour.musikloud2.info.conf
 # >> files
 # << files

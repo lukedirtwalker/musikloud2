@@ -394,8 +394,11 @@ exists("/usr/include/sailfishapp/sailfishapp.h"): {
     desktop.files = desktop/sailfish/harbour-musikloud2.desktop
     desktop.path = /usr/share/applications/
 
-    icon.files = desktop/sailfish/harbour-musikloud2.png
+    icon.files = desktop/sailfish/86/harbour-musikloud2.png
     icon.path = /usr/share/icons/hicolor/86x86/apps/
+
+    icon128.files = desktop/sailfish/128/harbour-musikloud2.png
+    icon128.path = /usr/share/icons/hicolor/128x128/apps/
 
     target.path = /usr/bin
 
@@ -405,7 +408,7 @@ exists("/usr/include/sailfishapp/sailfishapp.h"): {
     notification.files = ../sailfish/harbour.musikloud2.info.conf
     notification.path = /usr/share/lipstick/notificationcategories
 
-    INSTALLS += desktop icon qml notification
+    INSTALLS += desktop icon icon128 qml notification
 
     INCLUDEPATH += src/sailfish-qml
     HEADERS += \

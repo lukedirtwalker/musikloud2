@@ -19,12 +19,12 @@ SilicaFlickable {
                 else model.favourite()
             }
         }
-        MenuItem {
-            text: qsTr("Add to Playlist")
-            onClicked: {
-                // TODO
-            }
-        }
+//        MenuItem {
+//            text: qsTr("Add to Playlist")
+//            onClicked: {
+//                // TODO
+//            }
+//        }
     }
 
 
